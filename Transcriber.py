@@ -1,17 +1,15 @@
 import time
 import pickle
 import azure.cognitiveservices.speech as speechsdk
-import numpy
 from moviepy.editor import VideoFileClip
 import os
 from pathlib import Path
 import azure.functions as func
-import requests
 import azure.cognitiveservices.speech as speechsdk
 
 
 
-
+done = False
 # Create the Audio File from Video to extract text
 def createAudiofile(videoFile):
     video = VideoFileClip(videoFile)
@@ -26,33 +24,34 @@ def transcribeVideoFile(videofile):
     result = ()
     audiofile = createAudiofile(videofile)
     subscriptionKey = "8b55e73608b74816949046c46a09c0c6" #os.environ["speechSubscriptionKey"]#
-    speech_region = os.environ["speechRegion"] #"westus"
+    speech_region =  "westus"
     speech_config = speechsdk.SpeechConfig(subscriptionKey, speech_region)
-    speech_config.speech_recognition_language=os.environ["speechLanguage"] #"en-US"
+    speech_config.speech_recognition_language= "en-US"
     audio_config = speechsdk.audio.AudioConfig(filename=audiofile)
     speech_recogniser = speechsdk.SpeechRecognizer(speech_config,audio_config)
-
+    targetPath = f"{str(os.path.dirname(videofile))}\\Text\\{Path(videofile).stem}.txt"
 
     def recognised(evt):
         recognised_text = evt.result.text
-        result.append(recognised_text)
+        print(recognised_text)
+        with open(targetPath, "w") as f:
+            f.write(recognised_text+'\n')
+
 
     def stop_cb(evt):
         print(f"Closing in {evt}")
-        speech_recogniser.stop_continuous_recognition()
         global done
         done= True
         print(f"Closed on {evt}")
+    speech_recogniser.session_started.connect(lambda evt: print('SESSION STARTED: {}'.format(evt)))
+    speech_recogniser.session_stopped.connect(lambda evt: print('SESSION STOPPED {}'.format(evt)))
+    speech_recogniser.canceled.connect(stop_cb)
+    speech_recogniser.recognized.connect(recognised)
+    speech_recogniser.start_continuous_recognition()
+    
     while not done:
         time.sleep(0.5)
     # dump the transcribed file to  
-    with open ("transcribed_video.pickle","wb") as f:
-        pickle.dump()
-        print("Transcription Dumped")
-
-def main(myblob: func.InputStream):
     
-    createAudiofile(videoFile="C:\\Users\\rakesh.khanna\\Downloads\\TestAudio\\Qualtrics.mp4")
 
-if __name__ == "__main__":
-    main()
+    speech_recogniser.stop_continuous_recognition()
