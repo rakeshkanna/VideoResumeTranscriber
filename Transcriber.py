@@ -34,7 +34,7 @@ def transcribeVideoFile(videofile):
     def recognised(evt):
         recognised_text = evt.result.text
         print(recognised_text)
-        with open(targetPath, "w") as f:
+        with open(targetPath, "a") as f:
             f.write(recognised_text+'\n')
 
 
