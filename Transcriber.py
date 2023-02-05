@@ -8,7 +8,6 @@ import azure.functions as func
 import azure.cognitiveservices.speech as speechsdk
 
 
-
 done = False
 # Create the Audio File from Video to extract text
 def createAudiofile(videoFile):
@@ -21,6 +20,8 @@ def createAudiofile(videoFile):
 
 
 def transcribeVideoFile(videofile):
+    global done 
+    done = False
     result = ()
     audiofile = createAudiofile(videofile)
     subscriptionKey = "8b55e73608b74816949046c46a09c0c6" #os.environ["speechSubscriptionKey"]#
@@ -53,5 +54,4 @@ def transcribeVideoFile(videofile):
         time.sleep(0.5)
     # dump the transcribed file to  
     
-
     speech_recogniser.stop_continuous_recognition()
