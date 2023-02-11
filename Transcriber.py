@@ -1,12 +1,11 @@
 import time
-import pickle
 import azure.cognitiveservices.speech as speechsdk
 from moviepy.editor import VideoFileClip
 import os
 from pathlib import Path
 import azure.functions as func
 import azure.cognitiveservices.speech as speechsdk
-
+import json
 
 done = False
 # Create the Audio File from Video to extract text
@@ -55,3 +54,39 @@ def transcribeVideoFile(videofile):
     # dump the transcribed file to  
     
     speech_recogniser.stop_continuous_recognition()
+    with open(targetPath) as f:
+        document = [f.read()]
+    return document
+
+def IdentifyCustomEntities(document_path):
+    dictJobLabel = {}
+    key = "febf8b322e1345e3848ae4eed3ae3bb7"
+    endpoint = 'https://rknerresume.cognitiveservices.azure.com/'
+    from azure.core.credentials import AzureKeyCredential
+    from azure.ai.textanalytics import TextAnalyticsClient
+    from azure.ai.textanalytics import RecognizeCustomEntitiesAction
+    project_name = "rknerresumelang"
+    deployment_name = "rknerdeployment"
+    document_path = "D:\\models\\Resumes\\texts\\Cindy Loveday Resume LHH - Clean Draft.txt"
+    text_analytics_client = TextAnalyticsClient(endpoint=endpoint, credential=AzureKeyCredential(key))
+    with open(document_path) as f:
+        document = [f.read()]
+    poller = text_analytics_client.begin_analyze_actions(
+            document,
+            actions=[
+                RecognizeCustomEntitiesAction(
+                    project_name=project_name, deployment_name=deployment_name
+                ),
+            ],
+        )
+    document_result = poller.result()
+    for result in document_result:
+            custom_entities_result= result[0]
+            if not custom_entities_result.is_error:
+                for entity in custom_entities_result.entities:
+                    if entity.category in dictJobLabel.keys():
+                        dictJobLabel[entity.category].append(entity.text)
+                    else:
+                        dictJobLabel[entity.category] = [entity.text]
+    json_object = json.dumps(dictLabels,indent=2)
+    return json_object
