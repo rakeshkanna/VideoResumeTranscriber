@@ -5,6 +5,8 @@ from PIL import ImageTk, Image, ImageOps
 from tkVideoPlayer import TkinterVideo
 from tkinter import *
 import Transcriber as transcriber
+from pathlib import Path
+import os
 
 def update_duration(event):
     """ updates the duration after finding the duration """
@@ -51,12 +53,32 @@ def video_ended(event):
 def transcribeVideo():
     if strFile.get():
         resume_transcribed_text = transcriber.transcribeVideoFile(strFile.get())
+        resume_text.delete("1.0",tk.END)
         resume_text.insert(tk.END,resume_transcribed_text)
     else:
+        resume_text.delete("1.0",tk.END)
         resume_text.insert(tk.END,"FileNotFound")
     
 def getEntities():
-    entities_text.insert(tk.END,"Entities")
+    resumetext = resume_text.get("1.0",tk.END)
+    print(resumetext)
+    if resumetext and resumetext !="FileNotFound\n" and resumetext!='\n':
+        entities_json = transcriber.IdentifyCustomEntities([resumetext])
+    elif strFile.get():
+        print("finding path")
+        targetPath = f"{str(os.path.dirname(strFile.get()))}\\Text\\{Path(strFile.get()).stem}.txt"
+        with open(targetPath) as f:
+            resumetext = [f.read()]
+        if resumetext:
+            entities_json =transcriber.IdentifyCustomEntities(resumetext)
+        else:
+            print("Error1")
+            entities_json = "Resume for Entity Recognition not found"    
+    else:
+        print("Error1")
+        entities_json = "Resume for Entity Recognition not found"
+    entities_text.delete("1.0",tk.END)
+    entities_text.insert(tk.END,entities_json)
 
 root = tk.Tk()
 root.title("Resume Parser")

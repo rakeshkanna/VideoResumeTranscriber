@@ -58,7 +58,7 @@ def transcribeVideoFile(videofile):
         document = [f.read()]
     return document
 
-def IdentifyCustomEntities(document_path):
+def IdentifyCustomEntities(resumetext):
     dictJobLabel = {}
     key = "febf8b322e1345e3848ae4eed3ae3bb7"
     endpoint = 'https://rknerresume.cognitiveservices.azure.com/'
@@ -67,12 +67,12 @@ def IdentifyCustomEntities(document_path):
     from azure.ai.textanalytics import RecognizeCustomEntitiesAction
     project_name = "rknerresumelang"
     deployment_name = "rknerdeployment"
-    document_path = "D:\\models\\Resumes\\texts\\Cindy Loveday Resume LHH - Clean Draft.txt"
+    # document_path = "D:\\models\\Resumes\\texts\\Cindy Loveday Resume LHH - Clean Draft.txt"
     text_analytics_client = TextAnalyticsClient(endpoint=endpoint, credential=AzureKeyCredential(key))
-    with open(document_path) as f:
-        document = [f.read()]
+    # with open(document_path) as f:
+    #     document = [f.read()]
     poller = text_analytics_client.begin_analyze_actions(
-            document,
+            resumetext,
             actions=[
                 RecognizeCustomEntitiesAction(
                     project_name=project_name, deployment_name=deployment_name
@@ -88,5 +88,5 @@ def IdentifyCustomEntities(document_path):
                         dictJobLabel[entity.category].append(entity.text)
                     else:
                         dictJobLabel[entity.category] = [entity.text]
-    json_object = json.dumps(dictLabels,indent=2)
+    json_object = json.dumps(dictJobLabel,indent=2)
     return json_object
