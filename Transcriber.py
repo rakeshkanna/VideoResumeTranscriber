@@ -65,8 +65,8 @@ def IdentifyCustomEntities(resumetext):
     from azure.core.credentials import AzureKeyCredential
     from azure.ai.textanalytics import TextAnalyticsClient
     from azure.ai.textanalytics import RecognizeCustomEntitiesAction
-    project_name = "rknerresumelang"
-    deployment_name = "rknerdeployment"
+    project_name = "rknergenerated"
+    deployment_name = "rknergenerateddeployed"
     # document_path = "D:\\models\\Resumes\\texts\\Cindy Loveday Resume LHH - Clean Draft.txt"
     text_analytics_client = TextAnalyticsClient(endpoint=endpoint, credential=AzureKeyCredential(key))
     # with open(document_path) as f:
