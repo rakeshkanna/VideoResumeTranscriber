@@ -23,7 +23,7 @@ def transcribeVideoFile(videofile):
     done = False
     result = ()
     audiofile = createAudiofile(videofile)
-    subscriptionKey = "8b55e73608b74816949046c46a09c0c6" #os.environ["speechSubscriptionKey"]#
+    subscriptionKey = "" #os.environ["speechSubscriptionKey"]#
     speech_region =  "westus"
     speech_config = speechsdk.SpeechConfig(subscriptionKey, speech_region)
     speech_config.speech_recognition_language= "en-US"
@@ -33,7 +33,6 @@ def transcribeVideoFile(videofile):
 
     def recognised(evt):
         recognised_text = evt.result.text
-        print(recognised_text)
         with open(targetPath, "a") as f:
             f.write(recognised_text+'\n')
 
@@ -60,17 +59,14 @@ def transcribeVideoFile(videofile):
 
 def IdentifyCustomEntities(resumetext):
     dictJobLabel = {}
-    key = "febf8b322e1345e3848ae4eed3ae3bb7"
+    key = ""
     endpoint = 'https://rknerresume.cognitiveservices.azure.com/'
     from azure.core.credentials import AzureKeyCredential
     from azure.ai.textanalytics import TextAnalyticsClient
     from azure.ai.textanalytics import RecognizeCustomEntitiesAction
     project_name = "rknergenerated"
     deployment_name = "rknergenerateddeployed"
-    # document_path = "D:\\models\\Resumes\\texts\\Cindy Loveday Resume LHH - Clean Draft.txt"
     text_analytics_client = TextAnalyticsClient(endpoint=endpoint, credential=AzureKeyCredential(key))
-    # with open(document_path) as f:
-    #     document = [f.read()]
     poller = text_analytics_client.begin_analyze_actions(
             resumetext,
             actions=[
